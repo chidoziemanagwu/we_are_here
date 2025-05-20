@@ -1,0 +1,258 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block admin_title %}Dashboard{% endblock %}
+{% block admin_subtitle %}Overview of your services and user activity{% endblock %}
+
+{% block admin_content %}
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="stat-card bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                <i class="fas fa-concierge-bell text-xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Services</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_services }}</p>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'admin_service_list' %}" class="text-sm text-blue-600 hover:text-blue-800">
+                View all services <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    
+    <div class="stat-card bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                <i class="fas fa-check-circle text-xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Active Services</p>
+                <p class="text-2xl font-bold text-gray-900">{{ active_services }}</p>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'admin_service_list' %}?is_active=true" class="text-sm text-blue-600 hover:text-blue-800">
+                View active services <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    
+    <div class="stat-card bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+                <i class="fas fa-tags text-xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Categories</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_categories }}</p>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'admin_category_list' %}" class="text-sm text-blue-600 hover:text-blue-800">
+                Manage categories <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    
+    <div class="stat-card bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+                <i class="fas fa-users text-xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Users</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_users }}</p>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'admin_user_list' %}" class="text-sm text-blue-600 hover:text-blue-800">
+                View all users <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Service Status -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- Service Status -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Service Status</h3>
+        <div class="space-y-4">
+            <div class="flex items-center">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-green-600 h-2.5 rounded-full" style="width: {% widthratio available_services total_services 100 %}%"></div>
+                </div>
+                <span class="ml-4 text-sm font-medium text-gray-700">Available ({{ available_services }})</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-yellow-500 h-2.5 rounded-full" style="width: {% widthratio limited_services total_services 100 %}%"></div>
+                </div>
+                <span class="ml-4 text-sm font-medium text-gray-700">Limited ({{ limited_services }})</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-red-500 h-2.5 rounded-full" style="width: {% widthratio unavailable_services total_services 100 %}%"></div>
+                </div>
+                <span class="ml-4 text-sm font-medium text-gray-700">Unavailable ({{ unavailable_services }})</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Services by Category -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Services by Category</h3>
+        <div class="space-y-3">
+            {% for category in services_by_category %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        {% if category.icon %}
+                            <i class="fas {{ category.icon }} text-gray-500 mr-2"></i>
+                        {% endif %}
+                        <span class="text-sm font-medium text-gray-700">{{ category.name }}</span>
+                    </div>
+                    <span class="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                        {{ category.service_count }}
+                    </span>
+                </div>
+            {% empty %}
+                <p class="text-gray-500 text-sm">No categories found</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Recent Services -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Services</h3>
+        <div class="space-y-4">
+            {% for service in recent_services %}
+                <div class="border-b border-gray-200 pb-3 last:border-0 last:pb-0">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <a href="{% url 'admin_service_update' service.slug %}" class="text-blue-600 hover:text-blue-800 font-medium">
+                                {{ service.name }}
+                            </a>
+                            <p class="text-sm text-gray-600">{{ service.category.name }}</p>
+                        </div>
+                        <span class="text-xs px-2 py-1 rounded-full 
+                            {% if service.status == 'available' %}
+                                bg-green-100 text-green-800
+                            {% elif service.status == 'limited' %}
+                                bg-yellow-100 text-yellow-800
+                            {% elif service.status == 'unavailable' %}
+                                bg-red-100 text-red-800
+                            {% endif %}">
+                            {{ service.get_status_display }}
+                        </span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Added {{ service.created_at|date:"M d, Y" }}</p>
+                </div>
+            {% empty %}
+                <p class="text-gray-500 text-sm">No recent services</p>
+            {% endfor %}
+        </div>
+        <div class="mt-4 text-center">
+            <a href="{% url 'admin_service_list' %}" class="text-sm text-blue-600 hover:text-blue-800">
+                View all services <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent Users -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Users</h3>
+        <div class="space-y-4">
+            {% for user in recent_users %}
+                <div class="border-b border-gray-200 pb-3 last:border-0 last:pb-0">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-medium text-gray-800">{{ user.username }}</p>
+                            <p class="text-sm text-gray-600">{{ user.email }}</p>
+                        </div>
+                        {% if user.is_staff %}
+                            <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Staff</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Joined {{ user.date_joined|date:"M d, Y" }}</p>
+                </div>
+            {% empty %}
+                <p class="text-gray-500 text-sm">No recent users</p>
+            {% endfor %}
+        </div>
+        <div class="mt-4 text-center">
+            <a href="{% url 'admin_user_list' %}" class="text-sm text-blue-600 hover:text-blue-800">
+                View all users <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if total_subscriptions or total_message_requests or total_checkin_requests %}
+<!-- Requests Stats -->
+<div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    {% if total_subscriptions %}
+    <div class="stat-card bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+                <i class="fas fa-bell text-xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Subscriptions</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_subscriptions }}</p>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'admin_subscriber_list' %}" class="text-sm text-blue-600 hover:text-blue-800">
+                View all subscriptions <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if total_message_requests %}
+    <div class="stat-card bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-pink-100 text-pink-600 mr-4">
+                <i class="fas fa-envelope text-xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Message Requests</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_message_requests }}</p>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'admin_message_request_list' %}" class="text-sm text-blue-600 hover:text-blue-800">
+                View all requests <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if total_checkin_requests %}
+    <div class="stat-card bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-teal-100 text-teal-600 mr-4">
+                <i class="fas fa-clipboard-check text-xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Check-in Requests</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_checkin_requests }}</p>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'admin_checkin_list' %}" class="text-sm text-blue-600 hover:text-blue-800">
+                View all check-ins <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

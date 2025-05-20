@@ -1,0 +1,281 @@
+{% extends "admin/base.html" %}
+
+{% block admin_title %}Check-ins{% endblock %}
+{% block admin_subtitle %}View and manage user check-in requests{% endblock %}
+
+{% block admin_content %}
+<div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <!-- Filters -->
+    <div class="p-4 border-b border-gray-200 bg-gray-50">
+        <form method="get" class="flex flex-wrap gap-3">
+            <div class="flex-grow min-w-[200px]">
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                <input type="text" name="search" id="search" value="{{ request.GET.search }}" placeholder="Search by user or location" 
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            
+            <div class="w-full sm:w-auto">
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select name="status" id="status" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="">All Statuses</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            
+            <div class="w-full sm:w-auto">
+                <label for="date_range" class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                <select name="date_range" id="date_range" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="">All Time</option>
+                    <option value="today" {% if request.GET.date_range == 'today' %}selected{% endif %}>Today</option>
+                    <option value="yesterday" {% if request.GET.date_range == 'yesterday' %}selected{% endif %}>Yesterday</option>
+                    <option value="this_week" {% if request.GET.date_range == 'this_week' %}selected{% endif %}>This Week</option>
+                    <option value="last_week" {% if request.GET.date_range == 'last_week' %}selected{% endif %}>Last Week</option>
+                    <option value="this_month" {% if request.GET.date_range == 'this_month' %}selected{% endif %}>This Month</option>
+                    <option value="last_month" {% if request.GET.date_range == 'last_month' %}selected{% endif %}>Last Month</option>
+                </select>
+            </div>
+            
+            <div class="w-full sm:w-auto flex items-end">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">
+                    <i class="fas fa-filter mr-1"></i> Filter
+                </button>
+                {% if request.GET %}
+                <a href="{% url 'admin_checkin_list' %}" class="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md">
+                    <i class="fas fa-times mr-1"></i> Clear
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+    
+    <!-- Check-ins Table -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 admin-table">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scheduled For</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% if checkins %}
+                    {% for checkin in checkins %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ checkin.user.first_name|default:checkin.user.username }}+{{ checkin.user.last_name }}&background=3b82f6&color=fff" alt="{{ checkin.user.username }}">
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ checkin.user.get_full_name|default:checkin.user.username }}</div>
+                                    <div class="text-sm text-gray-500">{{ checkin.user.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ checkin.location_name }}</div>
+                            <div class="text-xs text-gray-500">{{ checkin.location_address }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if checkin.status == 'completed' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    Completed
+                                </span>
+                            {% elif checkin.status == 'pending' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Pending
+                                </span>
+                            {% else %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    Cancelled
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ checkin.scheduled_for|date:"M d, Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ checkin.created_at|date:"M d, Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="#" class="text-blue-600 hover:text-blue-900 mr-3" data-checkin-id="{{ checkin.id }}" onclick="viewCheckinDetails({{ checkin.id }})">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="#" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            {% if request.GET %}
+                                No check-ins found matching your filters.
+                            {% else %}
+                                No check-ins have been recorded yet.
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="flex-1 flex justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Previous
+                </a>
+            {% endif %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Next
+                </a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Showing
+                    <span class="font-medium">{{ page_obj.start_index }}</span>
+                    to
+                    <span class="font-medium">{{ page_obj.end_index }}</span>
+                    of
+                    <span class="font-medium">{{ paginator.count }}</span>
+                    results
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Previous</span>
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+                    
+                    {% for i in paginator.page_range %}
+                        {% if page_obj.number == i %}
+                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                                {{ i }}
+                            </span>
+                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                            <a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                {{ i }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Next</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Check-in Details Modal -->
+<div id="checkinModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">Check-in Details</h3>
+            <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="px-6 py-4" id="checkinDetails">
+            <div class="animate-pulse">
+                <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                <div class="h-4 bg-gray-200 rounded w-5/6 mb-4"></div>
+                <div class="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-6 py-4 flex justify-end">
+            <button type="button" onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function viewCheckinDetails(checkinId) {
+        // Show modal
+        document.getElementById('checkinModal').classList.remove('hidden');
+        
+        // In a real implementation, you would fetch the check-in details via AJAX
+        // For now, we'll just simulate it with a timeout
+        setTimeout(() => {
+            document.getElementById('checkinDetails').innerHTML = `
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium text-gray-500 mb-1">User</h4>
+                    <p class="text-base">John Doe (john@example.com)</p>
+                </div>
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium text-gray-500 mb-1">Location</h4>
+                    <p class="text-base">Bradford Community Center</p>
+                    <p class="text-sm text-gray-500">123 Main St, Bradford, BD1 1AA</p>
+                </div>
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium text-gray-500 mb-1">Notes</h4>
+                    <p class="text-base">Will be arriving around 2pm, need assistance with housing application forms.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500 mb-1">Status</h4>
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                            Pending
+                        </span>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500 mb-1">Scheduled For</h4>
+                        <p class="text-base">May 21, 2025 14:00</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500 mb-1">Created At</h4>
+                        <p class="text-base">May 20, 2025 09:15</p>
+                    </div>
+                </div>
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h4 class="text-sm font-medium text-gray-500 mb-3">Update Status</h4>
+                    <div class="flex space-x-2">
+                        <button class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md">
+                            <i class="fas fa-check mr-1"></i> Mark as Completed
+                        </button>
+                        <button class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md">
+                            <i class="fas fa-times mr-1"></i> Cancel Check-in
+                        </button>
+                    </div>
+                </div>
+            `;
+        }, 500);
+    }
+    
+    function closeModal() {
+        document.getElementById('checkinModal').classList.add('hidden');
+    }
+    
+    // Close modal when clicking outside of it
+    document.getElementById('checkinModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}

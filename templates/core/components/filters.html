@@ -1,0 +1,43 @@
+<div class="bg-white p-4 rounded-lg shadow-md">
+    <h2 class="text-lg font-semibold mb-4">Filters</h2>
+    
+    <!-- Service Categories -->
+    <div class="mb-6">
+        <h3 class="text-sm font-medium text-gray-900 mb-2">Service Type</h3>
+        {% for category in categories %}
+        <div class="flex items-center mb-2">
+            <input id="category-{{ category.id }}" 
+                   type="checkbox" 
+                   value="{{ category.id }}" 
+                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+            <label for="category-{{ category.id }}" 
+                   class="ml-2 text-sm text-gray-900">
+                {{ category.name }}
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Demographics -->
+    <div class="mb-6">
+        <h3 class="text-sm font-medium text-gray-900 mb-2">Demographics</h3>
+        {% for demo in demographics %}
+        <div class="flex items-center mb-2">
+            <input id="demo-{{ demo.id }}" 
+                   type="checkbox" 
+                   value="{{ demo.id }}" 
+                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+            <label for="demo-{{ demo.id }}" 
+                   class="ml-2 text-sm text-gray-900">
+                {{ demo.name }}
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button type="button" 
+            id="apply-filters"
+            class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
+        Apply Filters
+    </button>
+</div>

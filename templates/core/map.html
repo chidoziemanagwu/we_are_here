@@ -1,0 +1,650 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}We Are Here - Find Services Near You{% endblock %}
+
+{% block extra_css %}
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    /* Map container */
+    .map-container {
+        position: relative;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        height: 600px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    #map {
+        height: 100%;
+        width: 100%;
+    }
+    
+    /* Home location marker button */
+    .home-marker-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.3s;
+    }
+    
+    .home-marker-btn:hover {
+        transform: scale(1.1);
+        background: #2563eb;
+    }
+    
+    /* Legend colors to match markers exactly */
+    .legend-color-shelter { background-color: #E31A1C; }
+    .legend-color-food { background-color: #31B404; }
+    .legend-color-medical { background-color: #FF69B4; }
+    .legend-color-mental { background-color: #9370DB; }
+    .legend-color-clothing { background-color: #FF8C00; }
+    .legend-color-shower { background-color: #1E90FF; }
+    .legend-color-employment { background-color: #FFD700; }
+    .legend-color-legal { background-color: #ADD8E6; }
+    
+    /* Custom popup styles */
+    .service-popup {
+        max-width: 300px;
+    }
+    
+    /* Map loading indicator styles */
+    .map-loading-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        width: auto;
+        min-width: 180px;
+        text-align: center;
+    }
+    
+    .map-loading-indicator i {
+        margin-bottom: 10px;
+        color: #3b82f6;
+        font-size: 24px;
+    }
+    
+    .map-loading-indicator span {
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    /* Custom checkbox styles */
+    .category-checkbox {
+        display: none;
+    }
+    
+    .category-checkbox + label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        border: 1px solid #e5e7eb;
+        background-color: white;
+    }
+    
+    .category-checkbox:checked + label {
+        background-color: #f0f9ff;
+        border-color: #93c5fd;
+    }
+    
+    .category-checkbox + label .checkbox-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+    
+    .category-checkbox + label .checkbox-text {
+        font-size: 14px;
+        color: #4b5563;
+    }
+    
+    .category-checkbox:checked + label .checkbox-text {
+        color: #1e40af;
+        font-weight: 500;
+    }
+    
+    /* Filter buttons */
+    .filter-buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    
+    .filter-button {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .select-all-btn {
+        background-color: #e0f2fe;
+        color: #0369a1;
+        border: 1px solid #bae6fd;
+    }
+    
+    .select-all-btn:hover {
+        background-color: #bae6fd;
+    }
+    
+    .clear-all-btn {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+    
+    .clear-all-btn:hover {
+        background-color: #fecaca;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .map-container {
+            height: 400px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center">
+            <i class="fas fa-location-crosshairs text-blue-600 text-2xl mr-3"></i>
+            <h1 class="text-2xl font-bold text-gray-800">We Are Here</h1>
+        </div>
+        <p class="text-gray-600 mt-2">Find support services near you</p>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Map Container -->
+        <div class="bg-white rounded-lg shadow-lg mb-8 overflow-hidden">
+            <div class="p-5 border-b border-gray-200">
+                <div class="flex items-center">
+                    <i class="fas fa-map-marked-alt text-blue-600 mr-3"></i>
+                    <h2 class="text-xl font-semibold text-gray-800">Discover Services Near You</h2>
+                </div>
+            </div>
+            
+            <div class="p-0">
+                <div class="map-container">
+                    <div id="map"></div>
+                    <div class="home-marker-btn">
+                        <i class="fas fa-home"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Filters -->
+        <div class="bg-white rounded-lg shadow-lg mb-8">            
+            <div class="p-5">
+                <!-- Search Location -->
+                <div class="mb-6">
+                    <h3 class="flex items-center text-lg font-medium text-gray-800 mb-3">
+                        <i class="fas fa-location-dot text-blue-600 mr-2"></i>
+                        Find Location
+                    </h3>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" 
+                               id="location-search"
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5"
+                               placeholder="Enter address or postcode">
+                    </div>
+                </div>
+                
+                <!-- Service Category Filters -->
+                <div>
+                    <h3 class="flex items-center text-lg font-medium text-gray-800 mb-3">
+                        <i class="fas fa-filter text-blue-600 mr-2"></i>
+                        Filter Services
+                    </h3>
+                    
+                    <div class="filter-buttons">
+                        <button type="button" id="select-all-btn" class="filter-button select-all-btn">
+                            <i class="fas fa-check-double mr-1"></i> Select All
+                        </button>
+                        <button type="button" id="clear-all-btn" class="filter-button clear-all-btn">
+                            <i class="fas fa-times mr-1"></i> Clear All
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                        <div>
+                            <input type="checkbox" id="category-shelter" class="category-checkbox" value="Shelters" checked>
+                            <label for="category-shelter" class="category-checkbox-label">
+                                <div class="checkbox-color legend-color-shelter"></div>
+                                <span class="checkbox-text">Shelters</span>
+                            </label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="category-food" class="category-checkbox" value="Food Services" checked>
+                            <label for="category-food" class="category-checkbox-label">
+                                <div class="checkbox-color legend-color-food"></div>
+                                <span class="checkbox-text">Food Services</span>
+                            </label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="category-medical" class="category-checkbox" value="Medical Support" checked>
+                            <label for="category-medical" class="category-checkbox-label">
+                                <div class="checkbox-color legend-color-medical"></div>
+                                <span class="checkbox-text">Medical Support</span>
+                            </label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="category-mental" class="category-checkbox" value="Mental Health" checked>
+                            <label for="category-mental" class="category-checkbox-label">
+                                <div class="checkbox-color legend-color-mental"></div>
+                                <span class="checkbox-text">Mental Health</span>
+                            </label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="category-clothing" class="category-checkbox" value="Clothing Support" checked>
+                            <label for="category-clothing" class="category-checkbox-label">
+                                <div class="checkbox-color legend-color-clothing"></div>
+                                <span class="checkbox-text">Clothing Support</span>
+                            </label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="category-shower" class="category-checkbox" value="Shower Facilities" checked>
+                            <label for="category-shower" class="category-checkbox-label">
+                                <div class="checkbox-color legend-color-shower"></div>
+                                <span class="checkbox-text">Shower Facilities</span>
+                            </label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="category-employment" class="category-checkbox" value="Employment Support" checked>
+                            <label for="category-employment" class="category-checkbox-label">
+                                <div class="checkbox-color legend-color-employment"></div>
+                                <span class="checkbox-text">Employment Support</span>
+                            </label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="category-legal" class="category-checkbox" value="Legal Support" checked>
+                            <label for="category-legal" class="category-checkbox-label">
+                                <div class="checkbox-color legend-color-legal"></div>
+                                <span class="checkbox-text">Legal Support</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Service data for JavaScript -->
+<script>
+    // Initialize service data arrays
+    window.serviceData = [
+        {% for service in services %}
+        {
+            id: {{ service.id }},
+            name: "{{ service.name|escapejs }}",
+            slug: "{{ service.slug }}",
+            shortDescription: "{{ service.short_description|escapejs }}",
+            category: "{{ service.category.name|escapejs }}",
+            categorySlug: "{{ service.category.slug }}",
+            status: "{{ service.status }}",
+            latitude: {{ service.latitude|default:"null" }},
+            longitude: {{ service.longitude|default:"null" }},
+            address: "{{ service.address|default:'Address not available'|escapejs }}",
+            phone: "{{ service.phone|default:'Phone not available'|escapejs }}",
+            website: "{{ service.website|default:'#'|escapejs }}",
+            openingHours: "{{ service.opening_hours|default:'Hours not specified'|escapejs }}",
+            isExternal: false
+        }{% if not forloop.last %},{% endif %}
+        {% empty %}
+        // No services found
+        {% endfor %}
+    ];
+    
+    window.externalServiceData = [
+        {% for service in external_services %}
+        {
+            id: "{{ service.id }}",
+            name: "{{ service.name|escapejs }}",
+            shortDescription: "{{ service.short_description|escapejs }}",
+            category: "{{ service.category }}",
+            status: "{{ service.status }}",
+            latitude: {{ service.latitude|default:"null" }},
+            longitude: {{ service.longitude|default:"null" }},
+            address: "{{ service.address|default:'Address not available'|escapejs }}",
+            phone: "{{ service.phone|default:'Phone not available'|escapejs }}",
+            website: "{{ service.website|default:'#'|escapejs }}",
+            openingHours: "{{ service.opening_hours|default:'Hours not specified'|escapejs }}",
+            isExternal: true
+        }{% if not forloop.last %},{% endif %}
+        {% empty %}
+        // No external services found
+        {% endfor %}
+    ];
+    
+    // Combine internal and external services
+    window.allServiceData = [...window.serviceData, ...window.externalServiceData];
+    
+    // Log service data for debugging
+    console.log("Service data initialized:", {
+        services: window.serviceData.length,
+        externalServices: window.externalServiceData.length,
+        allServices: window.allServiceData.length
+    });
+    
+    // Add test data if no real data is available
+    if (window.allServiceData.length === 0) {
+        console.log("No service data found, adding test data");
+        window.allServiceData = [
+            {
+                id: 1,
+                name: "Test Shelter",
+                slug: "test-shelter",
+                shortDescription: "A test shelter for demonstration",
+                category: "Shelters",
+                status: "available",
+                latitude: 51.505,
+                longitude: -0.09,
+                address: "123 Test Street, London",
+                phone: "123-456-7890",
+                website: "https://example.com",
+                openingHours: "9am - 5pm",
+                isExternal: false
+            },
+            {
+                id: 2,
+                name: "Test Food Bank",
+                slug: "test-food-bank",
+                shortDescription: "A test food bank for demonstration",
+                category: "Food Services",
+                status: "available",
+                latitude: 51.51,
+                longitude: -0.1,
+                address: "456 Test Avenue, London",
+                phone: "123-456-7890",
+                website: "https://example.com",
+                openingHours: "9am - 5pm",
+                isExternal: false
+            },
+            {
+                id: 3,
+                name: "Test Medical Center",
+                slug: "test-medical",
+                shortDescription: "A test medical center for demonstration",
+                category: "Medical Support",
+                status: "available",
+                latitude: 51.503,
+                longitude: -0.085,
+                address: "789 Test Boulevard, London",
+                phone: "123-456-7890",
+                website: "https://example.com",
+                openingHours: "9am - 5pm",
+                isExternal: false
+            },
+            {
+                id: 4,
+                name: "Test Mental Health",
+                slug: "test-mental-health",
+                shortDescription: "A test mental health service for demonstration",
+                category: "Mental Health",
+                status: "available",
+                latitude: 51.506,
+                longitude: -0.095,
+                address: "101 Test Road, London",
+                phone: "123-456-7890",
+                website: "https://example.com",
+                openingHours: "9am - 5pm",
+                isExternal: false
+            },
+            {
+                id: 5,
+                name: "Test Clothing Support",
+                slug: "test-clothing",
+                shortDescription: "A test clothing service for demonstration",
+                category: "Clothing Support",
+                status: "available",
+                latitude: 51.504,
+                longitude: -0.1,
+                address: "202 Test Lane, London",
+                phone: "123-456-7890",
+                website: "https://example.com",
+                openingHours: "9am - 5pm",
+                isExternal: false
+            },
+            {
+                id: 6,
+                name: "Test Shower Facility",
+                slug: "test-shower",
+                shortDescription: "A test shower facility for demonstration",
+                category: "Shower Facilities",
+                status: "available",
+                latitude: 51.508,
+                longitude: -0.088,
+                address: "303 Test Drive, London",
+                phone: "123-456-7890",
+                website: "https://example.com",
+                openingHours: "9am - 5pm",
+                isExternal: false
+            },
+            {
+                id: 7,
+                name: "Test Employment Support",
+                slug: "test-employment",
+                shortDescription: "A test employment service for demonstration",
+                category: "Employment Support",
+                status: "available",
+                latitude: 51.502,
+                longitude: -0.092,
+                address: "404 Test Circle, London",
+                phone: "123-456-7890",
+                website: "https://example.com",
+                openingHours: "9am - 5pm",
+                isExternal: false
+            },
+            {
+                id: 8,
+                name: "Test Legal Support",
+                slug: "test-legal",
+                shortDescription: "A test legal service for demonstration",
+                category: "Legal Support",
+                status: "available",
+                latitude: 51.501,
+                longitude: -0.082,
+                address: "505 Test Court, London",
+                phone: "123-456-7890",
+                website: "https://example.com",
+                openingHours: "9am - 5pm",
+                isExternal: false
+            }
+        ];
+    }
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3EmjWpmvyE2Qrq5NGAJWupO-hjEN29zw&libraries=places"></script>
+<script src="{% static 'js/map-interactions.js' %}"></script>
+
+<!-- Home Location Button Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle home location button
+        const homeBtn = document.querySelector('.home-marker-btn');
+        if (homeBtn) {
+            homeBtn.addEventListener('click', () => {
+                if (navigator.geolocation) {
+                    homeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    navigator.geolocation.getCurrentPosition(position => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        const currentUrl = new URL(window.location.href);
+                        currentUrl.searchParams.set('lat', lat);
+                        currentUrl.searchParams.set('lng', lng);
+                        
+                        homeBtn.innerHTML = '<i class="fas fa-check"></i>';
+                        setTimeout(() => {
+                            window.location = currentUrl;
+                        }, 500);
+                    }, 
+                    error => {
+                        homeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        setTimeout(() => {
+                            homeBtn.innerHTML = '<i class="fas fa-home"></i>';
+                        }, 1000);
+                        alert("Could not get your location. Please check your permissions.");
+                    });
+                }
+            });
+        }
+        
+        // Handle category filter checkboxes
+        const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+        const selectAllBtn = document.getElementById('select-all-btn');
+        const clearAllBtn = document.getElementById('clear-all-btn');
+        
+        // Add event listeners to checkboxes
+        categoryCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                filterMarkers();
+                console.log(`Filter changed: ${checkbox.value} is now ${checkbox.checked ? 'checked' : 'unchecked'}`);
+            });
+        });
+        
+        // Select all button
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', () => {
+                console.log("Select All button clicked");
+                categoryCheckboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+                filterMarkers();
+            });
+        }
+        
+        // Clear all button
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', () => {
+                console.log("Clear All button clicked");
+                categoryCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                filterMarkers();
+            });
+        }
+        
+        // Function to filter markers based on selected categories
+        function filterMarkers() {
+            // Get selected categories
+            const selectedCategories = Array.from(categoryCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+            
+            // Log selected categories
+            console.log("Selected categories:", selectedCategories);
+            console.log(`${selectedCategories.length} of ${categoryCheckboxes.length} categories selected`);
+            
+            if (selectedCategories.length === 0) {
+                console.log("WARNING: No categories selected, all markers will be hidden");
+            } else if (selectedCategories.length === categoryCheckboxes.length) {
+                console.log("All categories selected, showing all markers");
+            }
+            
+            // Store in URL for sharing/bookmarking
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.delete('categories');
+            
+            if (selectedCategories.length > 0 && selectedCategories.length < categoryCheckboxes.length) {
+                currentUrl.searchParams.set('categories', selectedCategories.join(','));
+                console.log("URL updated with categories:", currentUrl.toString());
+            } else {
+                console.log("URL updated, categories parameter removed");
+            }
+            
+            // Update URL without reloading page
+            window.history.replaceState({}, '', currentUrl);
+            
+            // Trigger filtering in map-interactions.js
+            if (window.filterServiceMarkers) {
+                console.log("Calling filterServiceMarkers() function");
+                window.filterServiceMarkers(selectedCategories);
+            } else {
+                console.error("filterServiceMarkers function not found in global scope");
+            }
+        }
+        
+        // Initialize from URL parameters if present
+        function initFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoriesParam = urlParams.get('categories');
+            
+            if (categoriesParam) {
+                const urlCategories = categoriesParam.split(',');
+                console.log("Initializing from URL with categories:", urlCategories);
+                
+                // Uncheck all first
+                categoryCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Check only those in URL
+                categoryCheckboxes.forEach(checkbox => {
+                    if (urlCategories.includes(checkbox.value)) {
+                        checkbox.checked = true;
+                        console.log(`Setting ${checkbox.value} to checked from URL parameter`);
+                    }
+                });
+                
+                // Apply filtering
+                console.log("Applying initial filter from URL parameters");
+                setTimeout(filterMarkers, 500); // Delay to ensure map is loaded
+            } else {
+                console.log("No category filters found in URL");
+            }
+        }
+        
+        // Call initialization
+        console.log("Initializing category filters");
+        initFromUrl();
+    });
+</script>
+{% endblock %}

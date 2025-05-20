@@ -1,0 +1,42 @@
+/* Optimize map rendering */
+#map {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Optimize loading indicator */
+.map-loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    gap: 10px;
+}
+
+/* Preload marker icons to avoid flicker */
+body::after {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    z-index: -1;
+    content: url(https://maps.google.com/mapfiles/ms/icons/red-dot.png)
+             url(https://maps.google.com/mapfiles/ms/icons/green-dot.png)
+             url(https://maps.google.com/mapfiles/ms/icons/blue-dot.png)
+             url(https://maps.google.com/mapfiles/ms/icons/pink-dot.png)
+             url(https://maps.google.com/mapfiles/ms/icons/purple-dot.png)
+             url(https://maps.google.com/mapfiles/ms/icons/orange-dot.png)
+             url(https://maps.google.com/mapfiles/ms/icons/yellow-dot.png)
+             url(https://maps.google.com/mapfiles/ms/icons/ltblue-dot.png)
+             url(https://maps.google.com/mapfiles/ms/icons/homegardenbusiness.png);
+}

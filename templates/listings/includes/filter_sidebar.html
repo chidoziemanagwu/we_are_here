@@ -1,0 +1,146 @@
+{% load url_tags %}
+
+
+<div class="w-full md:w-1/4">
+    <div class="sticky top-24">
+        <!-- Search Box -->
+        <div class="filter-section rounded-lg p-4 mb-6">
+            <h3 class="font-semibold text-gray-700 mb-3">Search</h3>
+            <form method="get" action="{% if current_category %}{% url 'category_listing' current_category.slug %}{% else %}{% url 'service_listing' %}{% endif %}">
+                {% if current_location %}
+                    <input type="hidden" name="location" value="{{ current_location }}">
+                {% endif %}
+                {% if current_status %}
+                    <input type="hidden" name="status" value="{{ current_status }}">
+                {% endif %}
+                {% if current_demographic %}
+                    <input type="hidden" name="demographic" value="{{ current_demographic }}">
+                {% endif %}
+                <div class="relative">
+                    <input type="text" name="q" value="{{ search_query }}" 
+                        class="search-input w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                        placeholder="Search services...">
+                    <button type="submit" class="absolute right-2 top-2 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+<!-- Categories Filter -->
+<div class="filter-section rounded-lg p-4 mb-6">
+    <h3 class="font-semibold text-gray-700 mb-3">Categories</h3>
+    <ul class="space-y-2">
+        <li>
+            <a href="{% url 'service_listing' %}{% build_url_params search_query=search_query location=current_location status=current_status demographic=current_demographic %}" 
+               class="block px-3 py-2 rounded-md {% if not current_category %}bg-blue-100 text-blue-800{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                All Services
+            </a>
+        </li>
+        {% for item in category_counts %}
+            <li>
+                <a href="{% url 'category_listing' item.category.slug %}{% build_url_params search_query=search_query location=current_location status=current_status demographic=current_demographic %}" 
+                   class="flex justify-between px-3 py-2 rounded-md {% if current_category.id == item.category.id %}bg-blue-100 text-blue-800{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                    <span>{{ item.category.name }}</span>
+                    <span class="bg-gray-200 text-gray-700 px-2 rounded-full text-xs flex items-center">{{ item.count }}</span>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+
+
+        <!-- Status Filter -->
+        <div class="filter-section rounded-lg p-4 mb-6">
+            <h3 class="font-semibold text-gray-700 mb-3">Status</h3>
+            <form method="get" action="{% if current_category %}{% url 'category_listing' current_category.slug %}{% else %}{% url 'service_listing' %}{% endif %}">
+                {% if search_query %}
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                {% endif %}
+                {% if current_location %}
+                    <input type="hidden" name="location" value="{{ current_location }}">
+                {% endif %}
+                {% if current_demographic %}
+                    <input type="hidden" name="demographic" value="{{ current_demographic }}">
+                {% endif %}
+                
+                <div class="space-y-2">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="status" value="" 
+                               {% if not current_status %}checked{% endif %}
+                               class="form-radio text-blue-600 focus:ring-blue-500 h-4 w-4">
+                        <span class="text-gray-700">All</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="status" value="available" 
+                               {% if current_status == 'available' %}checked{% endif %}
+                               class="form-radio text-green-600 focus:ring-green-500 h-4 w-4">
+                        <span class="text-gray-700">Available</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="status" value="limited" 
+                               {% if current_status == 'limited' %}checked{% endif %}
+                               class="form-radio text-yellow-600 focus:ring-yellow-500 h-4 w-4">
+                        <span class="text-gray-700">Limited</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="status" value="unavailable" 
+                               {% if current_status == 'unavailable' %}checked{% endif %}
+                               class="form-radio text-red-600 focus:ring-red-500 h-4 w-4">
+                        <span class="text-gray-700">Unavailable</span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                    Apply Filter
+                </button>
+            </form>
+        </div>
+        
+        <!-- Demographics Filter (if available) -->
+        {% if demographic_counts %}
+        <div class="filter-section rounded-lg p-4 mb-6">
+            <h3 class="font-semibold text-gray-700 mb-3">Demographics</h3>
+            <form method="get" action="{% if current_category %}{% url 'category_listing' current_category.slug %}{% else %}{% url 'service_listing' %}{% endif %}">
+                {% if search_query %}
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                {% endif %}
+                {% if current_location %}
+                    <input type="hidden" name="location" value="{{ current_location }}">
+                {% endif %}
+                {% if current_status %}
+                    <input type="hidden" name="status" value="{{ current_status }}">
+                {% endif %}
+                
+                <div class="space-y-2">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="demographic" value="" 
+                               {% if not current_demographic %}checked{% endif %}
+                               class="form-radio text-blue-600 focus:ring-blue-500 h-4 w-4">
+                        <span class="text-gray-700">All</span>
+                    </label>
+                    
+                    {% for item in demographic_counts %}
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="demographic" value="{{ item.demographic.slug }}" 
+                               {% if current_demographic == item.demographic.slug %}checked{% endif %}
+                               class="form-radio text-purple-600 focus:ring-purple-500 h-4 w-4">
+                        <span class="text-gray-700">{{ item.demographic.name }} ({{ item.count }})</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                
+                <button type="submit" class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                    Apply Filter
+                </button>
+            </form>
+        </div>
+        {% endif %}
+        
+        <!-- View on Map Button -->
+        <a href="{% url 'home' %}" class="block text-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium py-3 px-4 rounded-lg shadow-md transition-all">
+            <i class="fas fa-map-marker-alt mr-2"></i> View on Map
+        </a>
+    </div>
+</div>

@@ -1,0 +1,256 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block admin_title %}{{ title }}{% endblock %}
+{% block admin_subtitle %}Enter service details below{% endblock %}
+
+{% block admin_content %}
+<div class="bg-white rounded-lg shadow-sm p-6">
+    <form method="post" class="admin-form space-y-6">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 p-4 mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            There were errors with your submission
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Basic Information -->
+        <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Name -->
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Service Name*
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Category -->
+                <div>
+                    <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Category*
+                    </label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.category.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Short Description -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.short_description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Short Description*
+                    </label>
+                    {{ form.short_description }}
+                    {% if form.short_description.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.short_description.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Brief description (max 150 chars) that appears in listings</p>
+                </div>
+                
+                <!-- Full Description -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Full Description*
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Location Information -->
+        <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Location Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Address -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Address*
+                    </label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.address.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Latitude -->
+                <div>
+                    <label for="{{ form.latitude.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Latitude*
+                    </label>
+                    {{ form.latitude }}
+                    {% if form.latitude.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.latitude.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Longitude -->
+                <div>
+                    <label for="{{ form.longitude.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Longitude*
+                    </label>
+                    {{ form.longitude }}
+                    {% if form.longitude.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.longitude.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Information -->
+        <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Phone -->
+                <div>
+                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number
+                    </label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Email -->
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Email
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Website -->
+                <div>
+                    <label for="{{ form.website.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Website
+                    </label>
+                    {{ form.website }}
+                    {% if form.website.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.website.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Opening Hours -->
+                <div>
+                    <label for="{{ form.opening_hours.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Opening Hours
+                    </label>
+                    {{ form.opening_hours }}
+                    {% if form.opening_hours.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.opening_hours.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">E.g., "Mon-Fri: 9am-5pm, Sat: 10am-2pm, Sun: Closed"</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status and Visibility -->
+        <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Status and Visibility</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Status -->
+                <div>
+                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Service Status*
+                    </label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Active Status -->
+                <div class="flex items-center">
+                    <div class="flex items-center h-5">
+                        {{ form.is_active }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="{{ form.is_active.id_for_label }}" class="font-medium text-gray-700">Active</label>
+                        <p class="text-gray-500">Service is visible on the site</p>
+                    </div>
+                </div>
+                
+                <!-- Verified Status -->
+                <div class="flex items-center">
+                    <div class="flex items-center h-5">
+                        {{ form.is_verified }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="{{ form.is_verified.id_for_label }}" class="font-medium text-gray-700">Verified</label>
+                        <p class="text-gray-500">Service information is verified</p>
+                    </div>
+                </div>
+                
+                <!-- Featured Status -->
+                <div class="flex items-center">
+                    <div class="flex items-center h-5">
+                        {{ form.is_featured }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="{{ form.is_featured.id_for_label }}" class="font-medium text-gray-700">Featured</label>
+                        <p class="text-gray-500">Highlight this service on the site</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Demographics -->
+        {% if form.demographics %}
+        <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Demographics Served</h3>
+            <div class="grid grid-cols-1 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Select all demographics this service caters to:
+                    </label>
+                    <div class="mt-1 space-y-2">
+                        {{ form.demographics }}
+                    </div>
+                    {% if form.demographics.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.demographics.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3 pt-5 border-t border-gray-200">
+            <a href="{% url 'admin_service_list' %}" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Cancel
+            </a>
+            <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                {{ submit_text }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

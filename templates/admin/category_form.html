@@ -1,0 +1,111 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block admin_title %}{{ title }}{% endblock %}
+{% block admin_subtitle %}Enter category details below{% endblock %}
+
+{% block admin_content %}
+<div class="bg-white rounded-lg shadow-sm p-6">
+    <form method="post" class="admin-form space-y-6">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 p-4 mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            There were errors with your submission
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Name -->
+            <div>
+                <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    Category Name*
+                </label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Icon -->
+            <div>
+                <label for="{{ form.icon.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    Icon (FontAwesome class)
+                </label>
+                {{ form.icon }}
+                {% if form.icon.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.icon.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500">Enter a FontAwesome icon class (e.g., "fa-home", "fa-utensils")</p>
+                
+                <div class="mt-3 p-3 bg-gray-50 rounded-md">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Icon Preview:</p>
+                    <div class="flex items-center">
+                        <i id="icon-preview" class="fas fa-question text-gray-600 text-2xl"></i>
+                        <span id="icon-name" class="ml-3 text-sm text-gray-500">No icon selected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3 pt-5 border-t border-gray-200">
+            <a href="{% url 'admin_category_list' %}" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Cancel
+            </a>
+            <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                {{ submit_text }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const iconInput = document.getElementById('{{ form.icon.id_for_label }}');
+        const iconPreview = document.getElementById('icon-preview');
+        const iconName = document.getElementById('icon-name');
+        
+        // Update icon preview when input changes
+        function updateIconPreview() {
+            const iconClass = iconInput.value.trim();
+            
+            if (iconClass) {
+                // Remove any previous icon classes
+                iconPreview.className = '';
+                // Add the new icon class
+                iconPreview.classList.add('fas');
+                iconPreview.classList.add(iconClass);
+                iconName.textContent = iconClass;
+            } else {
+                iconPreview.className = 'fas fa-question text-gray-600 text-2xl';
+                iconName.textContent = 'No icon selected';
+            }
+        }
+        
+        // Initial update
+        updateIconPreview();
+        
+        // Listen for changes
+        iconInput.addEventListener('input', updateIconPreview);
+    });
+</script>
+{% endblock %}

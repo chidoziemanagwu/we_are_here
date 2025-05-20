@@ -1,0 +1,394 @@
+<!-- templates/service_detail.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ service.name }} - We Are Here{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Service Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">{{ service.name }}</h1>
+                    <p class="text-lg opacity-90">{{ service.short_description }}</p>
+                    
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <span class="bg-blue-800 bg-opacity-50 text-white text-sm px-3 py-1 rounded-full">
+                            {{ service.category.name }}
+                        </span>
+                        
+                        {% for tag in service.demographic_tags.all %}
+                        <span class="bg-indigo-800 bg-opacity-50 text-white text-sm px-3 py-1 rounded-full">
+                            {{ tag.name }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="mt-4 md:mt-0">
+                    <div class="flex items-center">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full {% if service.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            <span class="h-2 w-2 rounded-full {% if service.is_active %}bg-green-500{% else %}bg-red-500{% endif %} mr-2"></span>
+                            {% if service.is_active %}Currently Open{% else %}Currently Closed{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Service Content -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Main Content -->
+                <div class="md:col-span-2">
+                    <div class="prose max-w-none">
+                        <h2 class="text-2xl font-semibold mb-4">About This Service</h2>
+                        <p>{{ service.description|linebreaks }}</p>
+                        
+                        {% if service.requirements %}
+                        <h3 class="text-xl font-semibold mt-6 mb-3">Requirements</h3>
+                        <p>{{ service.requirements|linebreaks }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Hours -->
+                    {% if service.hours %}
+                    <div class="mt-8">
+                        <h3 class="text-xl font-semibold mb-4">Hours of Operation</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            {{ service.hours|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="bg-gray-50 p-5 rounded-lg">
+                    <!-- Contact Info -->
+                    <h3 class="text-xl font-semibold mb-4">Contact Information</h3>
+                    
+                    <div class="space-y-4">
+                        {% if service.address %}
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 text-gray-500">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <p class="text-gray-700">{{ service.address|linebreaks }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if service.phone %}
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 text-gray-500">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <p class="text-gray-700">{{ service.phone }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if service.email %}
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 text-gray-500">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <p class="text-gray-700">{{ service.email }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if service.website %}
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 text-gray-500">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <a href="{{ service.website }}" target="_blank" class="text-blue-600 hover:underline">Visit Website</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Map section -->
+{% if service.address %}
+<div class="mt-6">
+    <h3 class="text-xl font-semibold mb-4">Location</h3>
+    <iframe
+        width="100%"
+        height="300"
+        frameborder="0"
+        style="border:0; border-radius: 0.5rem;"
+        src="https://www.google.com/maps/embed/v1/place?key=AIzaSyB0xAf_LkfBlFylcT_Wx1j9mKoFCMRcl0U&q={{ service.address|urlencode }}&zoom=15"
+        allowfullscreen>
+    </iframe>
+</div>
+{% endif %}
+                    
+                    <!-- Actions -->
+                    <div class="mt-6 space-y-3">
+                        <!-- Update the directions link -->
+{% if service.address %}
+<a href="https://www.google.com/maps/dir/?api=1&destination={{ service.address|urlencode }}" 
+   target="_blank" 
+   class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+    <i class="fas fa-directions mr-2"></i> Get Directions
+</a>
+{% endif %}
+                        
+                        {% if service.phone %}
+                        <a href="tel:{{ service.phone }}" 
+                           class="w-full flex items-center justify-center px-4 py-2 border border-blue-600 rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-blue-50">
+                            <i class="fas fa-phone mr-2"></i> Call
+                        </a>
+                        {% endif %}
+                        
+                        <button id="report-status-btn" 
+                                class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-exclamation-circle mr-2"></i> Report Status Change
+                        </button>
+                    </div>
+
+
+                    <!-- Add this after the Actions section in the sidebar -->
+<div class="mt-8 pt-6 border-t border-gray-200">
+    <h3 class="text-xl font-semibold mb-4">Request a Check-in</h3>
+    <p class="text-sm text-gray-600 mb-4">Need assistance or want to schedule a visit? Request a check-in with this service provider.</p>
+    
+    <button id="request-checkin-btn" 
+            class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+        <i class="fas fa-calendar-check mr-2"></i> Request Check-in
+    </button>
+</div>
+
+<!-- Add this new modal for check-in requests -->
+<div id="checkin-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Request a Check-in</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500">
+                    Fill out this form to request a check-in with {{ service.name }}.
+                </p>
+                <form id="checkin-form" class="mt-4">
+                    {% csrf_token %}
+                    <div class="flex flex-col space-y-4">
+                        <div>
+                            <label for="checkin-date" class="block text-sm font-medium text-gray-700 text-left">Preferred Date</label>
+                            <input type="date" id="checkin-date" name="scheduled_for_date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                            <label for="checkin-time" class="block text-sm font-medium text-gray-700 text-left">Preferred Time</label>
+                            <input type="time" id="checkin-time" name="scheduled_for_time" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                            <label for="checkin-notes" class="block text-sm font-medium text-gray-700 text-left">Additional Notes</label>
+                            <textarea id="checkin-notes" name="notes" rows="3" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" placeholder="Any specific needs or questions?"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-4 space-x-3">
+                        <button type="button" id="cancel-checkin" class="px-4 py-2 bg-white text-gray-700 text-base font-medium rounded-md border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none">
+                            Submit Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Report Modal -->
+<div id="status-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Report Status Change</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500">
+                    Is this service currently open or closed? Help others by updating the status.
+                </p>
+                <form id="status-form" class="mt-4">
+                    {% csrf_token %}
+                    <div class="flex flex-col space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <input type="radio" id="status-open" name="status" value="open" class="h-4 w-4 text-blue-600">
+                            <label for="status-open" class="text-sm font-medium text-gray-700">This service is open</label>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input type="radio" id="status-closed" name="status" value="closed" class="h-4 w-4 text-blue-600">
+                            <label for="status-closed" class="text-sm font-medium text-gray-700">This service is closed</label>
+                        </div>
+                        <div>
+                            <textarea name="notes" rows="3" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" placeholder="Additional notes (optional)"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-4 space-x-3">
+                        <button type="button" id="cancel-status" class="px-4 py-2 bg-white text-gray-700 text-base font-medium rounded-md border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if service.address %}
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0xAf_LkfBlFylcT_Wx1j9mKoFCMRcl0U&libraries=places&callback=initMap" defer></script>
+
+<script>
+    // Initialize Google Map
+    function initMap() {
+        // Create a geocoder instance
+        const geocoder = new google.maps.Geocoder();
+        
+        // Create the map with a default center (will be updated)
+        const map = new google.maps.Map(document.getElementById("service-map"), {
+            zoom: 15,
+            mapTypeControl: false,
+            streetViewControl: true,
+            fullscreenControl: true,
+        });
+        
+        // Geocode the address
+        geocoder.geocode({ 'address': "{{ service.address|escapejs }}" }, function(results, status) {
+            if (status === 'OK') {
+                // Center the map on the geocoded location
+                map.setCenter(results[0].geometry.location);
+                
+                // Add a marker at the geocoded location
+                const marker = new google.maps.Marker({
+                    map: map,
+                    position: results[0].geometry.location,
+                    title: "{{ service.name }}"
+                });
+                
+                // Add info window with service details
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<div class="p-2">
+                                <strong>{{ service.name }}</strong><br>
+                                {{ service.address|escapejs }}
+                              </div>`
+                });
+                
+                marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+                });
+                
+                // Open info window by default
+                infoWindow.open(map, marker);
+            } else {
+                console.error('Geocode was not successful for the following reason: ' + status);
+                // Show an error message in the map container
+                const mapDiv = document.getElementById('service-map');
+                mapDiv.innerHTML = `<div class="flex items-center justify-center h-full bg-gray-100 rounded-lg">
+                                      <p class="text-gray-500">Could not load map for this address.</p>
+                                    </div>`;
+            }
+        });
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Status modal functionality
+        const modal = document.getElementById('status-modal');
+        const reportBtn = document.getElementById('report-status-btn');
+        const cancelBtn = document.getElementById('cancel-status');
+        const statusForm = document.getElementById('status-form');
+        
+        reportBtn.addEventListener('click', function() {
+            modal.classList.remove('hidden');
+        });
+        
+        cancelBtn.addEventListener('click', function() {
+            modal.classList.add('hidden');
+        });
+        
+        statusForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(statusForm);
+            
+            // Get the selected status value
+            const statusValue = document.querySelector('input[name="status"]:checked').value;
+            
+            // Map "open"/"closed" to your model's status values
+            if (statusValue === "open") {
+                formData.set('status', 'available');
+            } else if (statusValue === "closed") {
+                formData.set('status', 'unavailable');
+            }
+            
+            fetch('{% url "service_status_update" service.id %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Thank you for your update!');
+                    modal.classList.add('hidden');
+                    // Reload page to show updated status
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+
+        // Check-in modal functionality
+        const checkinModal = document.getElementById('checkin-modal');
+        const requestCheckinBtn = document.getElementById('request-checkin-btn');
+        const cancelCheckinBtn = document.getElementById('cancel-checkin');
+        const checkinForm = document.getElementById('checkin-form');
+
+        if (requestCheckinBtn) {
+            requestCheckinBtn.addEventListener('click', function() {
+                checkinModal.classList.remove('hidden');
+            });
+        }
+
+        if (cancelCheckinBtn) {
+            cancelCheckinBtn.addEventListener('click', function() {
+                checkinModal.classList.add('hidden');
+            });
+        }
+
+        if (checkinForm) {
+            checkinForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // For now, just show a message since we don't have the endpoint yet
+                alert('Check-in request feature coming soon! Your request would be sent to the service provider.');
+                checkinModal.classList.add('hidden');
+            });
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

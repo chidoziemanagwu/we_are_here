@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Service - We Are Here{% endblock %}
+
+{% block content %}
+<div class="py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900">
+                    {% if form.instance.pk %}Edit{% else %}Add{% endif %} Service
+                </h3>
+                <div class="mt-2 max-w-xl text-sm text-gray-500">
+                    <p>Please provide accurate information about your service.</p>
+                </div>
+                <form method="POST" class="mt-5 space-y-6">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">Service Name</label>
+                        <div class="mt-1">
+                            <input type="text" name="name" id="name" 
+                                   value="{{ form.instance.name|default:'' }}"
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                   required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+                        <select id="category" name="category" 
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" 
+                                    {% if category.id == form.instance.category_id %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                        <div class="mt-1">
+                            <textarea id="description" name="description" rows="3" 
+                                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">{{ form.instance.description|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                            <div class="mt-1">
+                                <input type="tel" name="phone" id="phone"
+                                       value="{{ form.instance.phone|default:'' }}"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="website" class="block text-sm font-medium text-gray-700">Website</label>
+                            <div class="mt-1">
+                                <input type="url" name="website" id="website"
+                                       value="{{ form.instance.website|default:'' }}"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                        <div class="mt-1">
+                            <input type="text" name="address" id="address"
+                                   value="{{ form.instance.address|default:'' }}"
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                   required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Demographics Served</label>
+                        <div class="mt-2 space-y-2">
+                            {% for demo in demographics %}
+                            <div class="flex items-center">
+                                <input type="checkbox" name="demographic_tags" value="{{ demo.id }}"
+                                       {% if demo in form.instance.demographic_tags.all %}checked{% endif %}
+                                       class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <label for="demo_{{ demo.id }}" class="ml-2 text-sm text-gray-700">
+                                    {{ demo.name }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Opening Hours</label>
+                        {% for day in days %}
+                        <div class="mt-2 grid grid-cols-3 gap-4">
+                            <div class="col-span-1">
+                                <label class="text-sm text-gray-700">{{ day }}</label>
+                            </div>
+                            <div class="col-span-2 flex space-x-2">
+                                <input type="time" name="opening_hours_{{ day }}_start"
+                                       value="{{ form.instance.opening_hours|get_item:day|get_item:'start'|default:'' }}"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                <span class="text-gray-500">to</span>
+                                <input type="time" name="opening_hours_{{ day }}_end"
+                                       value="{{ form.instance.opening_hours|get_item:day|get_item:'end'|default:'' }}"
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if form.errors %}
+                    <div class="rounded-md bg-red-50 p-4">
+                        <div class="flex">
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">
+                                    There were errors with your submission
+                                </h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <ul role="list" class="list-disc pl-5 space-y-1">
+                                        {% for field in form %}
+                                            {% for error in field.errors %}
+                                                <li>{{ field.label }}: {{ error }}</li>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="flex justify-end space-x-3">
+                        <a href="{% url 'provider_dashboard' %}"
+                           class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                                class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            {% if form.instance.pk %}Update{% else %}Create{% endif %} Service
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
