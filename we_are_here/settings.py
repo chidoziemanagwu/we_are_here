@@ -132,4 +132,4 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-4.1-nano')
 
 # settings.py
-GOOGLE_MAPS_API_KEY = "AIzaSyA3EmjWpmvyE2Qrq5NGAJWupO-hjEN29zw"
+GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
