@@ -32,6 +32,13 @@ openai==1.12.0
 google-api-python-client==2.115.0
 googlemaps==4.10.0
 
+
+# Web scraping and parsing
+beautifulsoup4==4.12.2
+lxml==4.9.3
+html5lib==1.1
+
+
 # Geospatial
 geopy==2.4.1
 folium==0.15.1
