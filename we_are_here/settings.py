@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from django.contrib import admin
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -58,6 +60,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'we_are_here.wsgi.application'
+
+# Add this to your settings.py
+ADMIN_TEMPLATES = os.path.join(BASE_DIR, 'templates/django_admin')
 
 DATABASES = {
     'default': {
@@ -133,3 +138,4 @@ OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-4.1-nano')
 
 # settings.py
 GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+

@@ -1,0 +1,64 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | We Are Here Django Admin{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        We Are Here Django Administration
+    </a>
+</h1>
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+    :root {
+        --primary: #3b82f6;
+        --secondary: #2563eb;
+        --accent: #1e40af;
+        --primary-fg: #fff;
+        
+        --body-fg: #333;
+        --body-bg: #f8fafc;
+        --body-quiet-color: #666;
+        --body-loud-color: #000;
+        
+        --header-color: #fff;
+        --header-branding-color: var(--header-color);
+        --header-bg: var(--primary);
+        --header-link-color: var(--header-color);
+        
+        --breadcrumbs-fg: #999;
+        --breadcrumbs-link-fg: var(--primary);
+        --breadcrumbs-bg: #f8fafc;
+        
+        --link-fg: #2563eb;
+        --link-hover-color: #1e40af;
+        --link-selected-fg: #1e40af;
+        
+        --hairline-color: #e5e7eb;
+        --border-color: #d1d5db;
+        
+        --error-fg: #e11d48;
+        
+        --message-success-bg: #ecfdf5;
+        --message-success-border: #10b981;
+        --message-warning-bg: #fffbeb;
+        --message-warning-border: #f59e0b;
+        --message-error-bg: #fef2f2;
+        --message-error-border: #ef4444;
+        
+        --button-fg: #fff;
+        --button-bg: var(--primary);
+        --button-hover-bg: var(--secondary);
+        
+        --default-button-fg: #666;
+        --default-button-bg: #f8fafc;
+        --default-button-hover-bg: #f1f5f9;
+        --default-button-border-color: #d1d5db;
+        
+        --close-button-bg: #888;
+        --close-button-hover-bg: #747474;
+    }
+</style>
+{% endblock %}

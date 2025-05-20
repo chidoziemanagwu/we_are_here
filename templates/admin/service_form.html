@@ -4,219 +4,325 @@
 {% block admin_title %}{{ title }}{% endblock %}
 {% block admin_subtitle %}Enter service details below{% endblock %}
 
+{% block extra_head %}
+<!-- Flowbite CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css" rel="stylesheet" />
+{% endblock %}
+
 {% block admin_content %}
 <div class="bg-white rounded-lg shadow-sm p-6">
-    <form method="post" class="admin-form space-y-6">
+    <form method="post" class="admin-form space-y-8">
         {% csrf_token %}
         
         {% if form.non_field_errors %}
-            <div class="rounded-md bg-red-50 p-4 mb-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-circle text-red-400"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800">
-                            There were errors with your submission
-                        </h3>
-                        <div class="mt-2 text-sm text-red-700">
-                            <ul class="list-disc pl-5 space-y-1">
-                                {% for error in form.non_field_errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
+            <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                <div class="flex items-center">
+                    <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                    </svg>
+                    <span class="font-medium">There were errors with your submission</span>
                 </div>
+                <ul class="mt-1.5 list-disc list-inside">
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
             </div>
         {% endif %}
         
         <!-- Basic Information -->
-        <div>
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+        <div class="p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                Basic Information
+            </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Name -->
                 <div>
-                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    <label for="{{ form.name.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Service Name*
                     </label>
-                    {{ form.name }}
+                    {{ form.name.as_hidden }}
+                    <input type="text" id="{{ form.name.id_for_label }}" name="{{ form.name.html_name }}" value="{{ form.name.value|default:'' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Enter service name" required>
                     {% if form.name.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.name.errors.0 }}</p>
                     {% endif %}
                 </div>
                 
                 <!-- Category -->
                 <div>
-                    <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    <label for="{{ form.category.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Category*
                     </label>
-                    {{ form.category }}
+                    <select id="{{ form.category.id_for_label }}" name="{{ form.category.html_name }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        <option value="" {% if not form.category.value %}selected{% endif %}>Select a category</option>
+                        {% for value, label in form.category.field.choices %}
+                            <option value="{{ value }}" {% if form.category.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
                     {% if form.category.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.category.errors.0 }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.category.errors.0 }}</p>
                     {% endif %}
                 </div>
                 
                 <!-- Short Description -->
                 <div class="md:col-span-2">
-                    <label for="{{ form.short_description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    <label for="{{ form.short_description.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Short Description*
                     </label>
-                    {{ form.short_description }}
+                    <textarea id="{{ form.short_description.id_for_label }}" name="{{ form.short_description.html_name }}" rows="2" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Brief description that appears in listings" required>{{ form.short_description.value|default:'' }}</textarea>
                     {% if form.short_description.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.short_description.errors.0 }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.short_description.errors.0 }}</p>
                     {% endif %}
-                    <p class="mt-1 text-xs text-gray-500">Brief description (max 150 chars) that appears in listings</p>
+                    <p class="mt-1 text-xs text-gray-500">Brief description (max 150 chars) that appears in service listings</p>
                 </div>
                 
                 <!-- Full Description -->
                 <div class="md:col-span-2">
-                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    <label for="{{ form.description.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Full Description*
                     </label>
-                    {{ form.description }}
+                    <textarea id="{{ form.description.id_for_label }}" name="{{ form.description.html_name }}" rows="6" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Detailed description of the service" required>{{ form.description.value|default:'' }}</textarea>
                     {% if form.description.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.description.errors.0 }}</p>
                     {% endif %}
+                </div>
+                
+                <!-- Requirements -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.requirements.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Requirements
+                    </label>
+                    <textarea id="{{ form.requirements.id_for_label }}" name="{{ form.requirements.html_name }}" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Any requirements or eligibility criteria">{{ form.requirements.value|default:'' }}</textarea>
+                    {% if form.requirements.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.requirements.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Any requirements or eligibility criteria for accessing this service</p>
                 </div>
             </div>
         </div>
         
         <!-- Location Information -->
-        <div>
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Location Information</h3>
+        <div class="p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                </svg>
+                Location Information
+            </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Address -->
-                <div class="md:col-span-2">
-                    <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                        Address*
+                <!-- Address Line 1 -->
+                <div>
+                    <label for="address_line1" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Address Line 1*
                     </label>
-                    {{ form.address }}
-                    {% if form.address.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.address.errors.0 }}</p>
-                    {% endif %}
+                    <input type="text" id="address_line1" name="address_line1" value="{{ address_line1|default:'' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Street address" required>
                 </div>
                 
-                <!-- Latitude -->
+                <!-- Address Line 2 -->
                 <div>
-                    <label for="{{ form.latitude.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    <label for="address_line2" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Address Line 2
+                    </label>
+                    <input type="text" id="address_line2" name="address_line2" value="{{ address_line2|default:'' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Apartment, suite, unit, etc. (optional)">
+                </div>
+                
+                <!-- City -->
+                <div>
+                    <label for="city" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        City/Town*
+                    </label>
+                    <input type="text" id="city" name="city" value="{{ city|default:'' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="City or town" required>
+                </div>
+                
+                <!-- Postcode -->
+                <div>
+                    <label for="postcode" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Postcode*
+                    </label>
+                    <input type="text" id="postcode" name="postcode" value="{{ postcode|default:'' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Postcode" required>
+                </div>
+                
+                <!-- Full Address (Hidden) -->
+                <div class="md:col-span-2 hidden">
+                    <label for="{{ form.address.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Full Address
+                    </label>
+                    <textarea id="{{ form.address.id_for_label }}" name="{{ form.address.html_name }}" rows="3" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500">{{ form.address.value|default:'' }}</textarea>
+                </div>
+                
+                <!-- Map Preview -->
+                <div class="md:col-span-2">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Location Preview
+                    </label>
+                    <div id="location-preview-map" class="w-full h-[300px] bg-gray-100 rounded-lg border border-gray-300 mb-2"></div>
+                    <p class="text-xs text-gray-500">Enter the address above and click "Verify Location" to confirm coordinates</p>
+                    
+                    <button type="button" id="verify-location-btn" class="mt-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none">
+                        <svg class="w-4 h-4 mr-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Verify Location
+                    </button>
+                </div>
+                
+                <!-- Latitude and Longitude (Hidden but will be populated by map) -->
+                <div>
+                    <label for="{{ form.latitude.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Latitude*
                     </label>
-                    {{ form.latitude }}
+                    <input type="text" id="{{ form.latitude.id_for_label }}" name="{{ form.latitude.html_name }}" value="{{ form.latitude.value|default:'' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Latitude (will be auto-filled)" required readonly>
                     {% if form.latitude.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.latitude.errors.0 }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.latitude.errors.0 }}</p>
                     {% endif %}
                 </div>
                 
-                <!-- Longitude -->
                 <div>
-                    <label for="{{ form.longitude.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    <label for="{{ form.longitude.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Longitude*
                     </label>
-                    {{ form.longitude }}
+                    <input type="text" id="{{ form.longitude.id_for_label }}" name="{{ form.longitude.html_name }}" value="{{ form.longitude.value|default:'' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Longitude (will be auto-filled)" required readonly>
                     {% if form.longitude.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.longitude.errors.0 }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.longitude.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
         </div>
         
         <!-- Contact Information -->
-        <div>
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
+        <div class="p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+                </svg>
+                Contact Information
+            </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Phone -->
                 <div>
-                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    <label for="{{ form.phone.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Phone Number
                     </label>
-                    {{ form.phone }}
+                    <div class="flex">
+                        <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-e-0 border-gray-300 rounded-s-lg">
+                            <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+                            </svg>
+                        </span>
+                        <input type="tel" id="{{ form.phone.id_for_label }}" name="{{ form.phone.html_name }}" value="{{ form.phone.value|default:'' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="01274 123456">
+                    </div>
                     {% if form.phone.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.phone.errors.0 }}</p>
                     {% endif %}
                 </div>
                 
                 <!-- Email -->
                 <div>
-                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    <label for="{{ form.email.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Email
                     </label>
-                    {{ form.email }}
+                    <div class="flex">
+                        <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-e-0 border-gray-300 rounded-s-lg">
+                            <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                            </svg>
+                        </span>
+                        <input type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.html_name }}" value="{{ form.email.value|default:'' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="contact@example.com">
+                    </div>
                     {% if form.email.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.email.errors.0 }}</p>
                     {% endif %}
                 </div>
                 
                 <!-- Website -->
                 <div>
-                    <label for="{{ form.website.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    <label for="{{ form.website.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Website
                     </label>
-                    {{ form.website }}
+                    <div class="flex">
+                        <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-e-0 border-gray-300 rounded-s-lg">
+                            <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clip-rule="evenodd"></path>
+                            </svg>
+                        </span>
+                        <input type="url" id="{{ form.website.id_for_label }}" name="{{ form.website.html_name }}" value="{{ form.website.value|default:'' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="https://www.example.com">
+                    </div>
                     {% if form.website.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.website.errors.0 }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.website.errors.0 }}</p>
                     {% endif %}
                 </div>
                 
-                <!-- Opening Hours -->
-                <div>
-                    <label for="{{ form.opening_hours.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                        Opening Hours
+                <!-- Hours -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.hours.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Hours of Operation
                     </label>
-                    {{ form.opening_hours }}
-                    {% if form.opening_hours.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.opening_hours.errors.0 }}</p>
+                    <textarea id="{{ form.hours.id_for_label }}" name="{{ form.hours.html_name }}" rows="3" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Monday: 9am-5pm&#10;Tuesday: 9am-5pm&#10;Wednesday: 9am-5pm">{{ form.hours.value|default:'' }}</textarea>
+                    {% if form.hours.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.hours.errors.0 }}</p>
                     {% endif %}
-                    <p class="mt-1 text-xs text-gray-500">E.g., "Mon-Fri: 9am-5pm, Sat: 10am-2pm, Sun: Closed"</p>
+                    <p class="mt-1 text-xs text-gray-500">Enter each day on a new line. Example: "Monday: 9am-5pm"</p>
                 </div>
             </div>
         </div>
         
-        <!-- Status and Visibility -->
-        <div>
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Status and Visibility</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Status and Availability -->
+        <div class="p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                </svg>
+                Status and Availability
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Status -->
                 <div>
-                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    <label for="{{ form.status.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Service Status*
                     </label>
-                    {{ form.status }}
+                    <select id="{{ form.status.id_for_label }}" name="{{ form.status.html_name }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        {% for value, label in form.status.field.choices %}
+                            <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
                     {% if form.status.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.status.errors.0 }}</p>
                     {% endif %}
                 </div>
                 
-                <!-- Active Status -->
-                <div class="flex items-center">
-                    <div class="flex items-center h-5">
-                        {{ form.is_active }}
-                    </div>
-                    <div class="ml-3 text-sm">
-                        <label for="{{ form.is_active.id_for_label }}" class="font-medium text-gray-700">Active</label>
-                        <p class="text-gray-500">Service is visible on the site</p>
-                    </div>
+                <!-- Status Notes -->
+                <div>
+                    <label for="{{ form.status_notes.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Status Notes
+                    </label>
+                    <input type="text" id="{{ form.status_notes.id_for_label }}" name="{{ form.status_notes.html_name }}" value="{{ form.status_notes.value|default:'' }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="E.g., Limited beds available">
+                    {% if form.status_notes.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.status_notes.errors.0 }}</p>
+                    {% endif %}
                 </div>
                 
-                <!-- Verified Status -->
-                <div class="flex items-center">
-                    <div class="flex items-center h-5">
-                        {{ form.is_verified }}
+                <!-- Checkboxes for visibility options -->
+                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Active Status -->
+                    <div class="flex items-center ps-4 border border-gray-200 rounded">
+                        <input id="{{ form.is_active.id_for_label }}" type="checkbox" name="{{ form.is_active.html_name }}" value="True" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" {% if form.is_active.value %}checked{% endif %}>
+                        <label for="{{ form.is_active.id_for_label }}" class="w-full py-4 ms-2 text-sm font-medium text-gray-900">Active</label>
                     </div>
-                    <div class="ml-3 text-sm">
-                        <label for="{{ form.is_verified.id_for_label }}" class="font-medium text-gray-700">Verified</label>
-                        <p class="text-gray-500">Service information is verified</p>
+                    
+                    <!-- Verified Status -->
+                    <div class="flex items-center ps-4 border border-gray-200 rounded">
+                        <input id="{{ form.is_verified.id_for_label }}" type="checkbox" name="{{ form.is_verified.html_name }}" value="True" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" {% if form.is_verified.value %}checked{% endif %}>
+                        <label for="{{ form.is_verified.id_for_label }}" class="w-full py-4 ms-2 text-sm font-medium text-gray-900">Verified</label>
                     </div>
-                </div>
-                
-                <!-- Featured Status -->
-                <div class="flex items-center">
-                    <div class="flex items-center h-5">
-                        {{ form.is_featured }}
-                    </div>
-                    <div class="ml-3 text-sm">
-                        <label for="{{ form.is_featured.id_for_label }}" class="font-medium text-gray-700">Featured</label>
-                        <p class="text-gray-500">Highlight this service on the site</p>
+                    
+                    <!-- Featured Status -->
+                    <div class="flex items-center ps-4 border border-gray-200 rounded">
+                        <input id="{{ form.is_featured.id_for_label }}" type="checkbox" name="{{ form.is_featured.html_name }}" value="True" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" {% if form.is_featured.value %}checked{% endif %}>
+                        <label for="{{ form.is_featured.id_for_label }}" class="w-full py-4 ms-2 text-sm font-medium text-gray-900">Featured</label>
                     </div>
                 </div>
             </div>
@@ -224,18 +330,28 @@
         
         <!-- Demographics -->
         {% if form.demographics %}
-        <div>
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Demographics Served</h3>
+        <div class="p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
+                </svg>
+                Demographics Served
+            </h3>
             <div class="grid grid-cols-1 gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Select all demographics this service caters to:
                     </label>
-                    <div class="mt-1 space-y-2">
-                        {{ form.demographics }}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                        {% for checkbox in form.demographics %}
+                        <div class="flex items-center ps-4 border border-gray-200 rounded">
+                            {{ checkbox.tag }}
+                            <label for="{{ checkbox.id_for_label }}" class="w-full py-3 ms-2 text-sm font-medium text-gray-900">{{ checkbox.choice_label }}</label>
+                        </div>
+                        {% endfor %}
                     </div>
                     {% if form.demographics.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.demographics.errors.0 }}</p>
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ form.demographics.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -244,13 +360,214 @@
         
         <!-- Form Actions -->
         <div class="flex justify-end space-x-3 pt-5 border-t border-gray-200">
-            <a href="{% url 'admin_service_list' %}" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <a href="{% url 'admin_service_list' %}" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">
                 Cancel
             </a>
-            <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none">
                 {{ submit_text }}
             </button>
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Flowbite JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.js"></script>
+
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0xAf_LkfBlFylcT_Wx1j9mKoFCMRcl0U&libraries=places&callback=initMap" defer></script>
+
+<script>
+    // Initialize map
+    function initMap() {
+        // Default center (Bradford)
+        const defaultCenter = { lat: 53.7960, lng: -1.7594 };
+        
+        // Create the map
+        const map = new google.maps.Map(document.getElementById("location-preview-map"), {
+            zoom: 13,
+            center: defaultCenter,
+            mapTypeControl: false,
+            streetViewControl: true,
+            fullscreenControl: true,
+        });
+        
+        // Create marker (will be repositioned when address is geocoded)
+        const marker = new google.maps.Marker({
+            position: defaultCenter,
+            map: map,
+            draggable: true,
+            animation: google.maps.Animation.DROP,
+            title: "Service Location"
+        });
+        
+        // If we already have coordinates, center the map there
+        const lat = document.getElementById('{{ form.latitude.id_for_label }}').value;
+        const lng = document.getElementById('{{ form.longitude.id_for_label }}').value;
+        
+        if (lat && lng) {
+            const position = { lat: parseFloat(lat), lng: parseFloat(lng) };
+            map.setCenter(position);
+            marker.setPosition(position);
+            map.setZoom(15);
+        }
+        
+        // Handle marker drag events to update lat/lng fields
+        marker.addListener('dragend', function() {
+            const position = marker.getPosition();
+            document.getElementById('{{ form.latitude.id_for_label }}').value = position.lat();
+            document.getElementById('{{ form.longitude.id_for_label }}').value = position.lng();
+            
+            // Reverse geocode to update address fields
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ 'location': position }, function(results, status) {
+                if (status === 'OK' && results[0]) {
+                    updateAddressFields(results[0]);
+                }
+            });
+        });
+        
+        // Handle verify location button click
+        document.getElementById('verify-location-btn').addEventListener('click', function() {
+            const address1 = document.getElementById('address_line1').value;
+            const address2 = document.getElementById('address_line2').value;
+            const city = document.getElementById('city').value;
+            const postcode = document.getElementById('postcode').value;
+            
+            // Construct full address
+            let fullAddress = address1;
+            if (address2) fullAddress += ', ' + address2;
+            fullAddress += ', ' + city + ', ' + postcode;
+            
+            // Update the hidden address field
+            document.getElementById('{{ form.address.id_for_label }}').value = fullAddress;
+            
+            // Geocode the address
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ 'address': fullAddress }, function(results, status) {
+                if (status === 'OK') {
+                    // Update map and marker
+                    map.setCenter(results[0].geometry.location);
+                    marker.setPosition(results[0].geometry.location);
+                    map.setZoom(15);
+                    
+                    // Update lat/lng fields
+                    document.getElementById('{{ form.latitude.id_for_label }}').value = results[0].geometry.location.lat();
+                    document.getElementById('{{ form.longitude.id_for_label }}').value = results[0].geometry.location.lng();
+                    
+                    // Show success message
+                    alert('Location verified successfully!');
+                } else {
+                    alert('Geocode was not successful for the following reason: ' + status);
+                }
+            });
+        });
+        
+        // Function to update address fields from geocode result
+        function updateAddressFields(result) {
+            let street_number = '';
+            let route = '';
+            let locality = '';
+            let postal_code = '';
+            
+            // Extract address components
+            for (const component of result.address_components) {
+                const componentType = component.types[0];
+                
+                switch (componentType) {
+                    case "street_number":
+                        street_number = component.long_name;
+                        break;
+                    case "route":
+                        route = component.long_name;
+                        break;
+                    case "postal_town":
+                    case "locality":
+                        locality = component.long_name;
+                        break;
+                    case "postal_code":
+                        postal_code = component.long_name;
+                        break;
+                }
+            }
+            
+            // Update form fields
+            document.getElementById('address_line1').value = street_number ? (street_number + ' ' + route) : route;
+            document.getElementById('city').value = locality;
+            document.getElementById('postcode').value = postal_code;
+            
+            // Update the hidden address field
+            const fullAddress = document.getElementById('address_line1').value + 
+                               (document.getElementById('address_line2').value ? ', ' + document.getElementById('address_line2').value : '') + 
+                               ', ' + locality + ', ' + postal_code;
+            document.getElementById('{{ form.address.id_for_label }}').value = fullAddress;
+        }
+        
+        // Initialize Places Autocomplete for address fields
+        const addressInput = document.getElementById('address_line1');
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+            componentRestrictions: { country: 'gb' },
+            fields: ['address_components', 'geometry', 'formatted_address'],
+        });
+        
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            
+            if (!place.geometry) {
+                return;
+            }
+            
+            // Update map and marker
+            map.setCenter(place.geometry.location);
+            marker.setPosition(place.geometry.location);
+            map.setZoom(15);
+            
+            // Update lat/lng fields
+            document.getElementById('{{ form.latitude.id_for_label }}').value = place.geometry.location.lat();
+            document.getElementById('{{ form.longitude.id_for_label }}').value = place.geometry.location.lng();
+            
+            // Update address fields
+            updateAddressFields(place);
+        });
+    }
+    
+    // Handle form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.admin-form');
+        
+        form.addEventListener('submit', function(e) {
+            // Ensure the full address is set before submission
+            const address1 = document.getElementById('address_line1').value;
+            const address2 = document.getElementById('address_line2').value;
+            const city = document.getElementById('city').value;
+            const postcode = document.getElementById('postcode').value;
+            
+            // Construct full address
+            let fullAddress = address1;
+            if (address2) fullAddress += '\n' + address2;
+            fullAddress += '\n' + city + '\n' + postcode;
+            
+            // Update the hidden address field
+            document.getElementById('{{ form.address.id_for_label }}').value = fullAddress;
+        });
+        
+        // If we have an existing address, split it into components
+        const existingAddress = document.getElementById('{{ form.address.id_for_label }}').value;
+        if (existingAddress) {
+            const addressParts = existingAddress.split('\n');
+            if (addressParts.length >= 3) {
+                document.getElementById('address_line1').value = addressParts[0];
+                if (addressParts.length > 3) {
+                    document.getElementById('address_line2').value = addressParts[1];
+                    document.getElementById('city').value = addressParts[2];
+                    document.getElementById('postcode').value = addressParts[3];
+                } else {
+                    document.getElementById('city').value = addressParts[1];
+                    document.getElementById('postcode').value = addressParts[2];
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

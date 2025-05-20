@@ -1,0 +1,10 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="content-main">
+    <h2>{% trans "Welcome to the Django Administration" %}</h2>
+    <p>{% trans "This is the built-in Django admin interface." %}</p>
+    {{ block.super }}
+</div>
+{% endblock %}
