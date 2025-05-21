@@ -299,8 +299,8 @@ trio==0.25.1
 trio-websocket==0.11.1
 tweepy==4.14.0
 twilio==9.2.3
-Twisted==23.10.0
-twisted-iocpsupport==1.0.4
+# Twisted==23.10.0
+# twisted-iocpsupport==1.0.4
 txaio==23.1.1
 typing-inspect==0.9.0
 typing-inspection==0.4.0
