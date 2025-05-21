@@ -197,7 +197,7 @@ pockets==0.9.1
 prompt_toolkit==3.0.51
 propcache==0.3.1
 proto-plus==1.26.1
-protobuf==5.29.4
+protobuf==4.25.3
 psutil==5.9.6
 psycopg==3.1.17
 psycopg-binary==3.1.17
