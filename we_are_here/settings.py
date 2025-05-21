@@ -18,6 +18,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['we-are-here-yotb.onrender.com']
 
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://we-are-here-yotb.onrender.com',
+    # Add other trusted origins if needed
+]
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -27,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -39,7 +45,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # Remove this line:
     # "django_browser_reload.middleware.BrowserReloadMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+
 ]
+
+
+
+CORS_ALLOWED_ORIGINS = [
+    "https://we-are-here-yotb.onrender.com",
+]
+
+
 
 ROOT_URLCONF = 'we_are_here.urls'
 
