@@ -46,7 +46,7 @@ click-repl==0.3.0
 colorama==0.4.6
 comm==0.1.4
 constantly==23.10.4
-contourpy==1.1.1
+contourpy>=1.1.1
 cryptocode==0.1
 cryptography==44.0.2
 cssselect2==0.7.0
@@ -175,7 +175,7 @@ multidict==6.4.3
 mypy-extensions==1.0.0
 nest-asyncio==1.5.8
 networkx==3.4.2
-numpy==2.2.5
+numpy>=1.16
 oauthlib==3.2.2
 openai==1.75.0
 openpyxl==3.1.5
